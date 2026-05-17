@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Talk">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" sizes="any" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Talk</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div id="app">
+
+  <div id="pairing-screen">
+    <div class="logo">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Talk</span>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-label">Your Code</div>
+      <div class="code-digits" id="my-code">
+        <span class="cd">-</span><span class="cd">-</span><span class="cd">-</span><span class="cd">-</span>
+      </div>
+      <button class="copy-btn" id="copy-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy</span>
+      </button>
+    </div>
+
+    <div class="conn-status" id="conn-status">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Connecting...</span>
+    </div>
+
+    <div class="pair-section">
+      <div class="pair-label">Enter peer's code to connect</div>
+      <div class="pair-digits" id="pair-digits">
+        <input type="text" class="pd" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-idx="0">
+        <input type="text" class="pd" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-idx="1">
+        <input type="text" class="pd" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-idx="2">
+        <input type="text" class="pd" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" data-idx="3">
+      </div>
+      <div id="pair-error" class="error-msg"></div>
+      <button id="pair-btn" disabled>Connect</button>
+    </div>
+  </div>
+
+  <div id="chat-screen" class="hidden">
+    <div id="chat-header">
+      <div class="header-left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div class="header-info">
+          <span class="header-name" id="peer-name">Connected</span>
+          <span class="header-status" id="peer-status">Online</span>
+        </div>
+      </div>
+      <button id="leave-btn" class="btn-icon" title="Leave chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+
+    <div id="messages-wrap">
+      <div id="messages"></div>
+      <div id="scroll-bottom" class="hidden">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+
+    <div id="typing-indicator" class="hidden">
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-text">typing</span>
+    </div>
+
+    <div id="chat-input-area">
+      <div id="file-preview" class="hidden">
+        <div class="fp-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="fp-info">
+          <span class="fp-name" id="file-name"></span>
+          <span class="fp-size" id="file-size"></span>
+        </div>
+        <button id="cancel-file-btn" class="btn-icon-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="input-row">
+        <label class="btn-attach" id="file-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          <input type="file" id="file-input">
+        </label>
+        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+        <button id="send-btn" class="btn-send" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
